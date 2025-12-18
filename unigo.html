@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniGo - Поездки до вузов Казахстана</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #fff9c4, #ffecb3);
+      opacity: 0;
+      animation: fadeInBody 1s forwards;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    @keyframes fadeInBody {
+      to { opacity: 1; }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s forwards;
+    }
+
+    .fade-out {
+      animation: fadeOut 0.5s forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    .container {
+      width: 80vw;
+      height: 45vw;
+      max-width: 800px;
+      max-height: 450px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+      position: relative;
+      overflow-y: auto;
+    }
+
+    #profileView {
+      height: 60vw;
+      max-height: 600px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #f57c00;
+      padding: 0 50px;
+      margin-top: 10px;
+      box-sizing: border-box;
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 36px;
+      font-weight: bold;
+      color: #ff8f00;
+      margin-bottom: 10px;
+    }
+
+    input, button, label, a, textarea, select {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ffcc80;
+      border-radius: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #ffb300;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #ff8f00;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      color: #ff8f00;
+      cursor: pointer;
+      z-index: 10;
+      width: 40px;
+      height: 40px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .profile-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      color: #ff8f00;
+      cursor: pointer;
+      z-index: 10;
+      width: 40px;
+      height: 40px;
+      margin: 0;
+      padding: 0;
+    }
+
+    #map, .map-container {
+      width: 100%;
+      height: 200px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ffcc80;
+    }
+
+    .alert-button {
+      background-color: #ff5722;
+      color: white;
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      border: none;
+    }
+
+    .chat-box {
+      display: none;
+      border: 1px solid #ffcc80;
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      margin: 20px auto;
+      max-width: 500px;
+      box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+    }
+
+    .chat-messages {
+      height: 200px;
+      overflow-y: auto;
+      background: #fffde7;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ffecb3;
+    }
+
+    .rating-stars {
+      color: #FFD700;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 24px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #ff8f00;
+      font-weight: bold;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    #agreementModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 999;
+    }
+
+    #agreementModalContent {
+      background: #fff;
+      margin: 5% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 10px;
+      position: relative;
+      border: 2px solid #ffb300;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #ffecb3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      color: #ff8f00;
+      margin-right: 20px;
+      border: 2px solid #ffb300;
+    }
+
+    .profile-info {
+      flex-grow: 1;
+    }
+
+    .profile-menu {
+      list-style: none;
+      padding: 0;
+    }
+
+    .profile-menu li {
+      padding: 10px;
+      border-bottom: 1px solid #ffecb3;
+    }
+
+    .profile-menu li:last-child {
+      border-bottom: none;
+    }
+
+    .profile-menu a {
+      text-decoration: none;
+      color: #ff8f00;
+      display: block;
+      font-weight: bold;
+    }
+
+    .profile-menu a:hover {
+      color: #ff5722;
+    }
+
+    .map-small {
+      height: 150px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ffcc80;
+    }
+
+    .auto-reply-settings {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fffde7;
+      border-radius: 10px;
+      border: 1px solid #ffecb3;
+    }
+    
+    .auto-reply-toggle {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .auto-reply-toggle label {
+      margin-left: 10px;
+      width: auto;
+    }
+    
+    .auto-reply-text {
+      width: 100%;
+      min-height: 80px;
+    }
+
+    .city-selection {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .city-select {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ffcc80;
+      background: white;
+    }
+    
+    .find-button {
+      background-color: #ff8f00;
+      color: white;
+    }
+
+    .payment-methods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    .payment-method {
+      border: 2px solid #ffecb3;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .payment-method:hover {
+      border-color: #ffb300;
+      background: #fffde7;
+    }
+    
+    .payment-method.selected {
+      border-color: #ff8f00;
+      background: #ffecb3;
+    }
+    
+    .payment-icon {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    
+    .tariff-selection {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    .tariff-option {
+      border: 2px solid #ffecb3;
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .tariff-option:hover {
+      border-color: #ffb300;
+      background: #fffde7;
+    }
+    
+    .tariff-option.selected {
+      border-color: #ff8f00;
+      background: #ffecb3;
+    }
+    
+    .tariff-title {
+      font-weight: bold;
+      color: #ff8f00;
+      margin-bottom: 5px;
+    }
+    
+    .tariff-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #f57c00;
+    }
+    
+    .tariff-desc {
+      font-size: 14px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .university-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 15px 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .university-option {
+      border: 1px solid #ffcc80;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      text-align: center;
+      background: white;
+      transition: all 0.3s;
+    }
+    
+    .university-option:hover {
+      background: #fffde7;
+      border-color: #ffb300;
+    }
+    
+    .university-option.selected {
+      background: #ffecb3;
+      border-color: #ff8f00;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 95vw;
+        height: 53.5vw;
+        max-height: none;
+        margin: 10px auto;
+      }
+      
+      #profileView {
+        height: 80vh;
+        max-height: none;
+      }
+      
+      #map, .map-container {
+        height: 150px;
+      }
+      
+      .payment-methods {
+        grid-template-columns: 1fr;
+      }
+      
+      .university-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="roleSelection" class="container">
+    <div class="logo">UniGo</div>
+    <h2>Выберите роль</h2>
+    <button onclick="selectRole('passenger')">Я студент</button>
+    <button onclick="selectRole('driver')">Я водитель</button>
+  </div>
+
+  <div id="authForm" class="container" style="display:none;">
+    <button class="back-button" onclick="backToRoleSelection()">←</button>
+    <div class="logo">UniGo</div>
+    <h2>Вход или регистрация</h2>
+    <input type="tel" placeholder="Номер телефона" id="phone">
+    <input type="password" placeholder="Пароль" id="password">
+    <a href="#" style="color: #ff8f00; text-align: center;">Забыли пароль?</a>
+    <button onclick="login()">Войти</button>
+    <button onclick="registerStart()">Регистрация</button>
+  </div>
+
+  <div id="registerForm" class="container" style="display:none;">
+    <button class="back-button" onclick="goBack('authForm')">←</button>
+    <div class="logo">UniGo</div>
+    <h2>Регистрация</h2>
+    <input type="text" placeholder="ФИО" id="fullName">
+    <input type="tel" placeholder="Номер телефона" id="regPhone">
+    <input type="password" placeholder="Пароль" id="regPassword">
+    
+    <h3>Выберите ваш вуз (можно несколько)</h3>
+    <div class="university-grid" id="universitySelection">
+      <!-- Университеты будут добавлены через JavaScript -->
+    </div>
+    
+    <label style="color: #ff8f00;">
+      <input type="checkbox" id="agreementCheckbox"> Я принимаю <a href="#" onclick="openAgreement(event)" style="color: #ff8f00;">пользовательское соглашение</a>
+    </label>
+    <button onclick="register()">Зарегистрироваться</button>
+  </div>
+
+  <div id="tariffSelection" class="container" style="display:none;">
+    <button class="back-button" onclick="goBack('authForm')">←</button>
+    <div class="logo">UniGo</div>
+    <h2>Выберите тариф</h2>
+    <p style="text-align: center; color: #666;">Выберите подходящий тариф для поездок до вуза</p>
+    
+    <div class="tariff-selection">
+      <div class="tariff-option" onclick="selectTariff(1, 5000, 'Помесячный')">
+        <div class="tariff-title">📅 Помесячный</div>
+        <div class="tariff-price">5 000 тг/месяц</div>
+        <div class="tariff-desc">Неограниченное количество поездок до вашего вуза</div>
+      </div>
+      
+      <div class="tariff-option" onclick="selectTariff(7, 3000, '7 поездок')">
+        <div class="tariff-title">🎫 7 поездок</div>
+        <div class="tariff-price">3 000 тг</div>
+        <div class="tariff-desc">7 поездок до вуза в течение месяца</div>
+      </div>
+      
+      <div class="tariff-option" onclick="selectTariff(16, 6000, '16 поездок')">
+        <div class="tariff-title">🎫 16 поездок</div>
+        <div class="tariff-price">6 000 тг</div>
+        <div class="tariff-desc">16 поездок до вуза в течение месяца (экономия 20%)</div>
+      </div>
+    </div>
+    
+    <div id="selectedTariffInfo" style="display:none; background: #ffecb3; padding: 15px; border-radius: 10px; margin: 15px 0;">
+      <h3>Выбранный тариф: <span id="selectedTariffName"></span></h3>
+      <p>Стоимость: <span id="selectedTariffPrice"></span> тг</p>
+      <p>Количество поездок: <span id="selectedTariffTrips"></span></p>
+    </div>
+    
+    <button onclick="confirmTariff()" id="confirmTariffBtn" disabled>Продолжить</button>
+  </div>
+
+  <div id="mapView" class="container" style="display:none;">
+    <button class="back-button" onclick="goBack('tariffSelection')">←</button>
+    <button class="profile-button" onclick="showProfile()">👤</button>
+    <div class="logo">UniGo</div>
+    <h2>Поиск поездок</h2>
+    
+    <div class="city-selection">
+      <select id="fromLocation" class="city-select">
+        <option value="">Откуда</option>
+        <option value="jastar">Жастар апартменс</option>
+        <option value="almayu">Алмаю</option>
+        <option value="dorm1">Общежитие №1</option>
+        <option value="dorm3">Общежитие №3</option>
+        <option value="dorm5">Общежитие №5</option>
+        <option value="center">Центр города</option>
+        <option value="railway">Ж/д вокзал</option>
+      </select>
+      
+      <select id="toUniversity" class="city-select">
+        <option value="">В какой вуз</option>
+        <option value="kaznu">КазНУ им. аль-Фараби</option>
+        <option value="kaznuir">КазНУИР</option>
+        <option value="kazatu">КазАТУ</option>
+        <option value="kaznpu">КазНПУ им. Абая</option>
+        <option value="kaznmu">КазНМУ</option>
+        <option value="kaznlu">КазНЛУ</option>
+        <option value="iitu">IITU</option>
+        <option value="kbtu">AlmaU</option>
+        <option value="suleyman">Университет Сулеймана Демиреля</option>
+      </select>
+    </div>
+    
+    <button class="find-button" onclick="findRides()">Найти поездки</button>
+    
+    <div class="rating-stars"⭐️⭐️⭐️⭐️⭐️</div>
+    <div id="map"></div>
+    <div id="availableRides"></div>
+    <button class="alert-button" onclick="showAvailableDrivers()">!</button>
+    <div id="driverList"></div>
+  </div>
+
+  <div id="createRide" class="container" style="display:none;">
+    <button class="back-button" onclick="goBack('mapView')">←</button>
+    <button class="profile-button" onclick="showProfile()">👤</button>
+    <div class="logo">UniGo</div>
+    <h2>Создание поездки</h2>
+    <select id="driverFromLocation">
+      <option value="">Откуда (точка сбора)</option>
+      <option value="jastar">Жастар апартменс</option>
+      <option value="almayu">Алмаю</option>
+      <option value="center">Центр города</option>
+    </select>
+    
+    <select id="driverToUniversity">
+      <option value="">В какой вуз</option>
+      <option value="kaznu">КазНУ им. аль-Фараби</option>
+      <option value="kaznuir">КазНУИР</option>
+      <option value="kazatu">КазАТУ</option>
+      <option value="kaznpu">КазНПУ им. Абая</option>
+    </select>
+    
+    <input type="text" placeholder="Адрес места ожидания" id="pickupAddress">
+    <div class="map-container" id="pickupMap"></div>
+    <input type="datetime-local" id="rideTime">
+    <input type="number" placeholder="Количество мест" id="seats" min="1" max="7">
+    <input type="number" placeholder="Цена за место" id="price">
+    <button onclick="publishRide()">Опубликовать поездку</button>
+  </div>
+
+  <div id="profileView" class="container" style="display:none;">
+    <button class="back-button" onclick="goBackFromProfile()">←</button>
+    <div class="profile-header">
+      <div class="profile-avatar" id="userAvatar">U</div>
+      <div class="profile-info">
+        <h2 id="userName">Пользователь</h2>
+        <p id="userPhone">+7 XXX XXX XX XX</p>
+        <p id="userUniversity" style="color: #ff8f00; font-size: 14px;">Вуз не выбран</p>
+        <p id="userTariff" style="color: #f57c00; font-size: 14px; font-weight: bold;">Тариф не выбран</p>
+      </div>
+    </div>
+    
+    <ul class="profile-menu">
+      <li><a href="#" onclick="showMyRides()">Мои поездки</a></li>
+      <li><a href="#" onclick="showPaymentMethods()">Способы оплаты</a></li>
+      <li><a href="#" onclick="showSettings()">Настройки</a></li>
+      <li id="driverAutoReplyItem" style="display:none;"><a href="#" onclick="showAutoReplySettings()">Автоответчик</a></li>
+      <li><a href="#" onclick="changeTariff()">Сменить тариф</a></li>
+      <li><a href="#" onclick="logout()">Выйти</a></li>
+    </ul>
+    
+    <h3>Мои данные</h3>
+    <input type="text" id="profileName" placeholder="ФИО">
+    <input type="tel" id="profilePhone" placeholder="Телефон">
+    
+    <div id="paymentMethodsSection" style="display:none;">
+      <h3>Способы оплаты</h3>
+      <div class="payment-methods">
+        <div class="payment-method" onclick="selectPayment('kaspi')">
+          <div class="payment-icon">💳</div>
+          <div>Kaspi Gold</div>
+        </div>
+        <div class="payment-method" onclick="selectPayment('halyk')">
+          <div class="payment-icon">🏦</div>
+          <div>Halyk Bank</div>
+        </div>
+        <div class="payment-method" onclick="selectPayment('jusan')">
+          <div class="payment-icon">📱</div>
+          <div>Jusan</div>
+        </div>
+        <div class="payment-method" onclick="selectPayment('cash')">
+          <div class="payment-icon">💵</div>
+          <div>Наличные</div>
+        </div>
+      </div>
+    </div>
+    
+    <button onclick="updateProfile()">Сохранить изменения</button>
+    
+    <div id="autoReplySettings" class="auto-reply-settings" style="display:none;">
+      <h3>Настройки автоответчика</h3>
+      <div class="auto-reply-toggle">
+        <input type="checkbox" id="autoReplyEnabled">
+        <label for="autoReplyEnabled">Включить автоответчик</label>
+      </div>
+      <textarea id="autoReplyMessage" class="auto-reply-text" placeholder="Введите сообщение, которое будет автоматически отправляться студентам...">Спасибо за сообщение! Я подъезжаю к точке сбора.</textarea>
+      <button onclick="saveAutoReplySettings()">Сохранить настройки</button>
+    </div>
+  </div>
+
+  <div id="myRidesView" class="container" style="display:none;">
+    <button class="back-button" onclick="goBack('profileView')">←</button>
+    <div class="logo">UniGo</div>
+    <h2>Мои поездки</h2>
+    <div id="ridesList">
+      <div class="ride-item" style="border: 1px solid #ffcc80; padding: 15px; margin: 10px 0; border-radius: 10px;">
+        <p><strong>Жастар апартменс → КазНУ</strong></p>
+        <p>Дата: 23.04.2025 08:30</p>
+        <p>Статус: Завершено</p>
+        <p>Тариф: Помесячный</p>
+        <div class="map-small" id="rideMap1"></div>
+        <button onclick="viewRideDetails(1)">Подробности</button>
+      </div>
+      <div class="ride-item" style="border: 1px solid #ffcc80; padding: 15px; margin: 10px 0; border-radius: 10px;">
+        <p><strong>Алмаю → КазНПУ</strong></p>
+        <p>Дата: 25.04.2025 14:00</p>
+        <p>Статус: В пути</p>
+        <p>Тариф: 7 поездок</p>
+        <div class="map-small" id="rideMap2"></div>
+        <button onclick="viewRideDetails(2)">Подробности</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-box" id="chatBox">
+    <h2>Чат с водителем</h2>
+    <div class="chat-messages" id="chatMessages"></div>
+    <input type="text" id="chatInput" placeholder="Напишите сообщение...">
+    <button onclick="sendMessage()">Отправить</button>
+  </div>
+
+  <div id="agreementModal">
+    <div id="agreementModalContent">
+      <h2>Пользовательское соглашение UniGo</h2>
+      <p><strong>1. Общие положения:</strong> сервис UniGo предоставляет платформу для организации поездок студентов до вузов Казахстана.</p>
+      <p><strong>2. Тарифы:</strong> доступны помесячный тариф, пакеты на 7 и 16 поездок.</p>
+      <p><strong>3. Обязанности:</strong> водители обязаны соблюдать безопасность, студенты — правила поведения.</p>
+      <p><strong>4. Оплата:</strong> доступны Kaspi, Halyk, Jusan и наличные.</p>
+      <button onclick="closeAgreement()">Закрыть</button>
+    </div>
+  </div>
+
+  <footer>UniGo - Поездки до вузов Казахстана</footer>
+
+  <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+  <script>
+    let currentUser = null;
+    let maps = {};
+    let chatPartner = null;
+    let selectedUniversities = [];
+    let selectedTariff = null;
+    let selectedPayment = null;
+
+    // Список вузов Казахстана
+    const universities = [
+      {id: 'kaznu', name: 'КазНУ им. аль-Фараби', city: 'Алматы'},
+      {id: 'kaznuir', name: 'КазНУИР', city: 'Алматы'},
+      {id: 'kazatu', name: 'КазАТУ', city: 'Алматы'},
+      {id: 'kaznpu', name: 'КазНПУ им. Абая', city: 'Алматы'},
+      {id: 'kaznmu', name: 'КазНМУ', city: 'Алматы'},
+      {id: 'kaznlu', name: 'КазНЛУ', city: 'Алматы'},
+      {id: 'iitu', name: 'IITU', city: 'Алматы'},
+      {id: 'almau', name: 'AlmaU', city: 'Алматы'},
+      {id: 'suleyman', name: 'Университет Сулеймана Демиреля', city: 'Алматы'},
+      {id: 'enu', name: 'ЕНУ им. Л.Н. Гумилева', city: 'Нур-Султан'},
+      {id: 'kazguu', name: 'КазГЮУ', city: 'Нур-Султан'},
+      {id: 'kaznrtu', name: 'КазНРТУ', city: 'Алматы'},
+      {id: 'kaznau', name: 'КазНАУ', city: 'Алматы'}
+    ];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initAllMaps();
+      populateUniversities();
+    });
+
+    function populateUniversities() {
+      const container = document.getElementById('universitySelection');
+      universities.forEach(uni => {
+        const div = document.createElement('div');
+        div.className = 'university-option';
+        div.textContent = uni.name;
+        div.setAttribute('data-id', uni.id);
+        div.onclick = function() {
+          this.classList.toggle('selected');
+          const id = this.getAttribute('data-id');
+          if (this.classList.contains('selected')) {
+            selectedUniversities.push(id);
+          } else {
+            selectedUniversities = selectedUniversities.filter(u => u !== id);
+          }
+        };
+        container.appendChild(div);
+      });
+    }
+
+    function initAllMaps() {
+      ymaps.ready(function() {
+        maps.mainMap = new ymaps.Map("map", {
+          center: [43.238949, 76.889709],
+          zoom: 12
+        });
+        
+        maps.pickupMap = new ymaps.Map("pickupMap", {
+          center: [43.238949, 76.889709],
+          zoom: 15
+        });
+        
+        maps.rideMap1 = new ymaps.Map("rideMap1", {
+          center: [43.238949, 76.889709],
+          zoom: 12
+        });
+        addRoute(maps.rideMap1, [43.238949, 76.889709], [43.235, 76.895]);
+        
+        maps.rideMap2 = new ymaps.Map("rideMap2", {
+          center: [43.238949, 76.889709],
+          zoom: 12
+        });
+        addRoute(maps.rideMap2, [43.245, 76.880], [43.240, 76.890]);
+      });
+    }
+
+    function addRoute(map, from, to) {
+      ymaps.route([from, to]).then(function(route) {
+        map.geoObjects.add(route);
+      });
+    }
+
+    function fadeTo(fromId, toId) {
+      const from = document.getElementById(fromId);
+      const to = document.getElementById(toId);
+      if (from && to) {
+        from.classList.remove("fade-in");
+        from.classList.add("fade-out");
+        setTimeout(() => {
+          from.style.display = "none";
+          from.classList.remove("fade-out");
+          to.style.display = "block";
+          to.classList.add("fade-in");
+          
+          if (toId === 'mapView' && maps.mainMap) {
+            setTimeout(() => maps.mainMap.container.fitToViewport(), 100);
+          }
+        }, 500);
+      }
+    }
+
+    function selectRole(role) {
+      localStorage.setItem('role', role);
+      fadeTo("roleSelection", "authForm");
+    }
+
+    function backToRoleSelection() {
+      fadeTo("authForm", "roleSelection");
+    }
+
+    function goBack(toId) {
+      const visible = [...document.querySelectorAll('.container')].find(el => el.style.display !== 'none');
+      if (visible) fadeTo(visible.id, toId);
+    }
+
+    function goBackFromProfile() {
+      const prevScreen = localStorage.getItem('prevScreen') || (localStorage.getItem('role') === "passenger" ? "mapView" : "createRide");
+      fadeTo("profileView", prevScreen);
+    }
+
+    function registerStart() {
+      fadeTo("authForm", "registerForm");
+    }
+
+    function register() {
+      const agreed = document.getElementById('agreementCheckbox').checked;
+      if (!agreed) {
+        alert("Пожалуйста, примите пользовательское соглашение.");
+        return;
+      }
+      
+      if (selectedUniversities.length === 0) {
+        alert("Пожалуйста, выберите хотя бы один вуз.");
+        return;
+      }
+      
+      currentUser = {
+        name: document.getElementById('fullName').value,
+        phone: document.getElementById('regPhone').value,
+        role: localStorage.getItem('role'),
+        universities: selectedUniversities,
+        tariff: null
+      };
+      
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      
+      const role = localStorage.getItem('role');
+      if (role === "passenger") {
+        fadeTo("registerForm", "tariffSelection");
+      } else {
+        fadeTo("registerForm", "createRide");
+      }
+    }
+
+    function selectTariff(trips, price, name) {
+      selectedTariff = { trips, price, name };
+      
+      // Убираем выделение со всех тарифов
+      document.querySelectorAll('.tariff-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
+      // Выделяем выбранный
+      event.currentTarget.classList.add('selected');
+      
+      // Показываем информацию
+      document.getElementById('selectedTariffInfo').style.display = 'block';
+      document.getElementById('selectedTariffName').textContent = name;
+      document.getElementById('selectedTariffPrice').textContent = price;
+      document.getElementById('selectedTariffTrips').textContent = trips === 999 ? 'Неограниченно' : trips;
+      
+      // Активируем кнопку
+      document.getElementById('confirmTariffBtn').disabled = false;
+    }
+
+    function confirmTariff() {
+      if (!selectedTariff) {
+        alert("Пожалуйста, выберите тариф");
+        return;
+      }
+      
+      if (currentUser) {
+        currentUser.tariff = selectedTariff;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      }
+      
+      fadeTo("tariffSelection", "mapView");
+    }
+
+    function changeTariff() {
+      localStorage.setItem('prevScreen', 'profileView');
+      fadeTo("profileView", "tariffSelection");
+    }
+
+    function login() {
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+      } else {
+        currentUser = {
+          name: "Тестовый Пользователь",
+          phone: "+7 XXX XXX XX XX",
+          role: localStorage.getItem('role'),
+          universities: ['kaznu'],
+          tariff: { trips: 7, price: 3000, name: '7 поездок' }
+        };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      }
+      
+      const role = localStorage.getItem('role');
+      if (role === "passenger" && (!currentUser.tariff)) {
+        fadeTo("authForm", "tariffSelection");
+      } else {
+        fadeTo("authForm", role === "passenger" ? "mapView" : "createRide");
+      }
+    }
+
+    function showProfile() {
+      const visible = [...document.querySelectorAll('.container')].find(el => el.style.display !== 'none' && el.id !== "profileView");
+      if (visible) {
+        localStorage.setItem('prevScreen', visible.id);
+      }
+      
+      if (currentUser) {
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userPhone').textContent = currentUser.phone;
+        document.getElementById('profileName').value = currentUser.name;
+        document.getElementById('profilePhone').value = currentUser.phone;
+        document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+        
+        // Показываем выбранные вузы
+        if (currentUser.universities && currentUser.universities.length > 0) {
+          const uniNames = currentUser.universities.map(id => {
+            const uni = universities.find(u => u.id === id);
+            return uni ? uni.name : id;
+          }).join(', ');
+          document.getElementById('userUniversity').textContent = 'Вузы: ' + uniNames;
+        }
+        
+        // Показываем тариф
+        if (currentUser.tariff) {
+          document.getElementById('userTariff').textContent = `Тариф: ${currentUser.tariff.name}`;
+        }
+        
+        if (currentUser.role === 'driver') {
+          document.getElementById('driverAutoReplyItem').style.display = 'block';
+        } else {
+          document.getElementById('driverAutoReplyItem').style.display = 'none';
+        }
+      }
+      
+      fadeTo(visible ? visible.id : "mapView", "profileView");
+    }
+
+    function updateProfile() {
+      currentUser.name = document.getElementById('profileName').value;
+      currentUser.phone = document.getElementById('profilePhone').value;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userPhone').textContent = currentUser.phone;
+      document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+      
+      alert("Профиль обновлен!");
+    }
+
+    function selectPayment(method) {
+      selectedPayment = method;
+      document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+      alert("Выбрана оплата: " + method);
+    }
+
+    function showPaymentMethods() {
+      document.getElementById('paymentMethodsSection').style.display = 'block';
+      document.getElementById('paymentMethodsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showAutoReplySettings() {
+      document.getElementById('autoReplySettings').style.display = 'block';
+      
+      const savedSettings = localStorage.getItem('autoReplySettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        document.getElementById('autoReplyEnabled').checked = settings.enabled;
+        document.getElementById('autoReplyMessage').value = settings.message;
+      }
+      
+      document.getElementById('autoReplySettings').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function saveAutoReplySettings() {
+      const settings = {
+        enabled: document.getElementById('autoReplyEnabled').checked,
+        message: document.getElementById('autoReplyMessage').value
+      };
+      
+      localStorage.setItem('autoReplySettings', JSON.stringify(settings));
+      alert("Настройки автоответчика сохранены!");
+      document.getElementById('autoReplySettings').style.display = 'none';
+    }
+
+    function showMyRides() {
+      fadeTo("profileView", "myRidesView");
+    }
+
+    function showSettings() {
+      alert("Раздел 'Настройки' в разработке");
+    }
+
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem('currentUser');
+      fadeTo("profileView", "roleSelection");
+    }
+
+    function publishRide() {
+      alert("Поездка опубликована!");
+      fadeTo("createRide", "mapView");
+    }
+
+    function findRides() {
+      const fromLocation = document.getElementById('fromLocation').value;
+      const toUniversity = document.getElementById('toUniversity').value;
+      
+      if (!fromLocation || !toUniversity) {
+        alert("Пожалуйста, выберите точку отправления и вуз");
+        return;
+      }
+      
+      const locations = {
+        'jastar': 'Жастар апартменс',
+        'almayu': 'Алмаю',
+        'dorm1': 'Общежитие №1',
+        'dorm3': 'Общежитие №3',
+        'dorm5': 'Общежитие №5',
+        'center': 'Центр города',
+        'railway': 'Ж/д вокзал'
+      };
+      
+      const unis = {
+        'kaznu': 'КазНУ им. аль-Фараби',
+        'kaznuir': 'КазНУИР',
+        'kazatu': 'КазАТУ',
+        'kaznpu': 'КазНПУ им. Абая',
+        'kaznmu': 'КазНМУ',
+        'kaznlu': 'КазНЛУ',
+        'iitu': 'IITU',
+        'almau': 'AlmaU',
+        'suleyman': 'Университет Сулеймана Демиреля'
+      };
+      
+      document.getElementById('availableRides').innerHTML = `
+        <h3>Доступные поездки ${locations[fromLocation]} → ${unis[toUniversity]}</h3>
+        <div class="ride-option" style="border: 1px solid #ffcc80; padding: 15px; margin: 15px 0; border-radius: 10px;">
+          <p>Водитель: Аслан (⭐4.9)</p>
+          <p>Дата: Сегодня 08:30</p>
+          <p>Свободных мест: 2</p>
+          <button onclick="selectRide('Аслан', 350)" style="width: 100%;">Выбрать поездку</button>
+          <button onclick="openChat('Аслан')" style="width: 100%; background: #4a148c; margin-top: 5px;">Написать водителю</button>
+        </div>
+        <div class="ride-option" style="border: 1px solid #ffcc80; padding: 15px; margin: 15px 0; border-radius: 10px;">
+          <p>Водитель: Мария (⭐5.0)</p>
+          <p>Дата: Сегодня 09:00</p>
+          <p>Свободных мест: 3</p>
+          <button onclick="selectRide('Мария', 400)" style="width: 100%;">Выбрать поездку</button>
+          <button onclick="openChat('Мария')" style="width: 100%; background: #4a148c; margin-top: 5px;">Написать водителю</button>
+        </div>
+      `;
+    }
+    
+    function selectRide(driverName, price) {
+      alert(`Вы выбрали поездку с ${driverName} за ${price} тг`);
+    }
+
+    function showAvailableDrivers() {
+      const fromLocation = document.getElementById('fromLocation').value;
+      const toUniversity = document.getElementById('toUniversity').value;
+      
+      if (!fromLocation || !toUniversity) {
+        alert("Пожалуйста, сначала выберите маршрут");
+        return;
+      }
+      
+      const locations = {
+        'jastar': 'Жастар апартменс',
+        'almayu': 'Алмаю',
+        'dorm1': 'Общежитие №1',
+        'dorm3': 'Общежитие №3',
+        'dorm5': 'Общежитие №5',
+        'center': 'Центр города',
+        'railway': 'Ж/д вокзал'
+      };
+      
+      const unis = {
+        'kaznu': 'КазНУ им. аль-Фараби',
+        'kaznuir': 'КазНУИР',
+        'kazatu': 'КазАТУ',
+        'kaznpu': 'КазНПУ им. Абая'
+      };
+      
+      const driverList = document.getElementById('driverList');
+      driverList.innerHTML = `
+        <div style="border: 1px solid #ffcc80; padding: 15px; margin: 15px 0; border-radius: 10px;">
+          <h3>Ближайшие водители</h3>
+          <p>Маршрут: ${locations[fromLocation]} → ${unis[toUniversity]}</p>
+          <p>Водитель: Аслан ⭐4.9</p>
+          <p>Расстояние: 1.2 км</p>
+          <p>Цена: 350 тг</p>
+          <button onclick="bookRide('Аслан', 350)" style="width: 100%;">Забронировать сейчас</button>
+        </div>
+      `;
+    }
+
+    function bookRide(driverName, price) {
+      alert(`Забронирована поездка с ${driverName} за ${price} тг`);
+    }
+
+    function openChat(driverName) {
+      chatPartner = driverName;
+      document.getElementById('chatBox').style.display = 'block';
+      document.getElementById('chatMessages').innerHTML = `<p><em>Чат с водителем ${driverName} открыт.</em></p>`;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (message !== '') {
+        const chatMessages = document.getElementById('chatMessages');
+        const msgElement = document.createElement('p');
+        msgElement.textContent = 'Вы: ' + message;
+        chatMessages.appendChild(msgElement);
+        input.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        const savedSettings = localStorage.getItem('autoReplySettings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          if (settings.enabled && currentUser && currentUser.role === 'driver') {
+            setTimeout(() => {
+              const replyElement = document.createElement('p');
+              replyElement.textContent = `${currentUser.name}: ${settings.message}`;
+              chatMessages.appendChild(replyElement);
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 2000);
+            return;
+          }
+        }
+        
+        setTimeout(() => {
+          const replyElement = document.createElement('p');
+          replyElement.textContent = `${chatPartner}: Спасибо за сообщение!`;
+          chatMessages.appendChild(replyElement);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1000);
+      }
+    }
+
+    function viewRideDetails(rideId) {
+      alert(`Подробности поездки #${rideId}`);
+    }
+
+    function openAgreement(event) {
+      event.preventDefault();
+      document.getElementById('agreementModal').style.display = 'block';
+    }
+
+    function closeAgreement() {
+      document.getElementById('agreementModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
